@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Tic Tac Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(270deg, #ff6ec4, #7873f5, #4ade80, #00c6ff);
+            background-size: 800% 800%;
+            animation: gradientMove 10s ease infinite;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Winner Message Styling */
+        .mm {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            min-height: 2.5rem; /* Prevents layout shifting when text appears */
+        }
+
+        .win {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        /* Responsive Container */
+        .container {
+            width: 100%;
+            max-width: 400px; /* Limits size on desktop */
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* 3x3 Game Board */
+        .game {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Individual Square Buttons */
+        .box {
+            background-color: rgba(255, 255, 255, 0.85);
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .box:hover:not(:disabled) {
+            background-color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .box:disabled {
+            cursor: not-allowed;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Action Buttons Wrapper */
+        #res {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Reset Button Styling */
+        #reset {
+            height: 50px;
+            width: 120px;
+            border-radius: 25px;
+            background-color: #ff477e;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 71, 126, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        #reset:hover {
+            background-color: #ff2a63;
+            transform: scale(1.05);
+        }
+
+        #reset:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile Font Scaling */
+        @media (max-width: 360px) {
+            .box {
+                font-size: 2rem;
+            }
+            .mm {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mm win">Placeholder</div>
+    
+    <div class="container">
+        <div class="game">
+            <button class="box"></button>
+            <button class="box"></button>
+            <button class="box"></button>
+            <button class="box"></button>
+            <button class="box"></button>
+            <button class="box"></button>
+            <button class="box"></button>
+            <button class="box"></button>
+            <button class="box"></button>
+        </div>
+    </div>
+
+    <div id="res">          
+        <button id="reset">Reset</button>
+    </div>
+
+    <script>
+        let boxes = document.querySelectorAll(".box");
+        let check = "x";
+        let patterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        let msg = document.querySelector(".mm");
+        let reset = document.querySelector("#reset");
+
+        boxes.forEach((box) => {
+            box.addEventListener("click", () => {
+                if (check === "x") {
+                    box.innerText = "X";
+                    box.style.color = "#ff477e"; // Give X its own color
+                    check = "o";
+                    box.disabled = true;
+                    winner();
+                } else {
+                    box.innerText = "O";
+                    box.style.color = "#7873f5"; // Give O its own color
+                    check = "x";
+                    box.disabled = true;
+                    winner();
+                }
+            })
+        });
+
+        const disable = () => {
+            for (let box of boxes) {
+                box.disabled = true;
+            }
+        }
+
+        const announce = (winnerName) => {
+            msg.innerText = `🎉 The winner is team ${winnerName}!`;
+            msg.classList.remove("win");
+            disable();
+        }
+
+        const winner = () => {
+            for (let i of patterns) {
+                let pos1 = boxes[i[0]].innerText;
+                let pos2 = boxes[i[1]].innerText;
+                let pos3 = boxes[i[2]].innerText;
+                
+                if (pos1 != "" && pos1 == pos2 && pos2 == pos3) {
+                    announce(pos1);
+                    return;
+                }
+            }
+
+            // Check for a Draw match
+            let totalFilled = 0;
+            boxes.forEach(box => { if(box.innerText !== "") totalFilled++; });
+            if (totalFilled === 9) {
+                msg.innerText = "🤝 It's a Draw Game!";
+                msg.classList.remove("win");
+            }
+        }
+
+        reset.addEventListener("click", () => {
+            msg.classList.add("win");
+            msg.innerText = "Placeholder"; // keep spacing intact
+            check = "x";
+            boxes.forEach((box) => {
+                box.innerText = "";
+                box.disabled = false;
+            })
+        });
+    </script>
+</body>
+</html>
